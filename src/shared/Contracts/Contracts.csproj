@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>Contracts</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Description>Shared contracts including event schemas and DTOs for inter-service communication.</Description>
+  </PropertyGroup>
+
+</Project>

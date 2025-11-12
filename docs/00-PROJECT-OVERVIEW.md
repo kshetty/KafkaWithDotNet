@@ -351,7 +351,7 @@ Replication Factor: 3 (production)
 - **Azure API Management** - API gateway
 - **Azure Key Vault** - Secrets management
 - **Azure Application Insights** - Monitoring
-- **Apache Kafka 3.7.0** (KRaft mode) - Event streaming
+- **Apache Kafka 3.9.1** (KRaft mode) - Event streaming
 
 ### DevOps:
 

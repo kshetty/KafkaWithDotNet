@@ -1,0 +1,55 @@
+# Development Environment Configuration
+
+# Subscription and Tenant
+subscription_id = "your-subscription-id-here"
+tenant_id       = "your-tenant-id-here"
+
+# Project Configuration
+project_name = "kafkadotnet"
+environment  = "dev"
+location     = "eastus"
+
+# Tags
+tags = {
+  CostCenter = "Development"
+  Owner      = "DevTeam"
+}
+
+# Networking
+vnet_address_space = ["10.0.0.0/16"]
+
+# PostgreSQL Configuration
+postgresql_version    = "17"
+postgresql_sku_name   = "B_Standard_B1ms" # Burstable: 1 vCore, 2 GiB RAM
+postgresql_storage_mb = 32768             # 32 GB
+
+# Redis Configuration
+redis_sku_name  = "Basic"
+redis_family    = "C"
+redis_capacity  = 0 # 250 MB
+redis_version   = "6"
+
+# Container Apps Configuration
+container_apps_workload_profile = "Consumption"
+container_apps_min_replicas     = 1
+container_apps_max_replicas     = 2
+
+# API Management Configuration
+apim_sku_name        = "Developer_1"
+apim_publisher_name  = "Kafka DotNet Dev Team"
+apim_publisher_email = "dev-team@example.com"
+
+# Azure Container Registry
+acr_sku = "Basic"
+
+# Key Vault
+key_vault_sku_name = "standard"
+
+# Monitoring
+log_analytics_retention_days      = 30
+application_insights_retention_days = 90
+
+# Entra External ID (Azure AD B2C)
+entra_external_id_domain = "your-tenant.onmicrosoft.com"
+entra_client_id          = "your-client-id-here"
+entra_client_secret      = "your-client-secret-here" # Use Key Vault or env var in production

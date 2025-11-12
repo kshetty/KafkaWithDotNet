@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <RootNamespace>UserService.Domain</RootNamespace>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <Description>Domain layer containing enterprise business rules, entities, value objects, and domain events. This layer has ZERO dependencies on other layers or external frameworks.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Domain layer should have NO external dependencies -->
+    <!-- This ensures independence from frameworks and infrastructure -->
+  </ItemGroup>
+
+</Project>

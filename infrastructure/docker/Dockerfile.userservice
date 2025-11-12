@@ -1,0 +1,48 @@
+# Stage 1: Build
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+WORKDIR /src
+
+# Copy solution and project files
+COPY ["KafkaWithDotNet.sln", "./"]
+COPY ["Directory.Build.props", "./"]
+COPY ["global.json", "./"]
+COPY ["src/services/UserService/UserService.Domain/UserService.Domain.csproj", "src/services/UserService/UserService.Domain/"]
+COPY ["src/services/UserService/UserService.Application/UserService.Application.csproj", "src/services/UserService/UserService.Application/"]
+COPY ["src/services/UserService/UserService.Infrastructure/UserService.Infrastructure.csproj", "src/services/UserService/UserService.Infrastructure/"]
+COPY ["src/services/UserService/UserService.Presentation/UserService.Presentation.csproj", "src/services/UserService/UserService.Presentation/"]
+COPY ["src/shared/Common/Common.csproj", "src/shared/Common/"]
+COPY ["src/shared/Contracts/Contracts.csproj", "src/shared/Contracts/"]
+
+# Restore dependencies
+RUN dotnet restore "src/services/UserService/UserService.Presentation/UserService.Presentation.csproj"
+
+# Copy all source files
+COPY . .
+
+# Build the application
+WORKDIR "/src/src/services/UserService/UserService.Presentation"
+RUN dotnet build "UserService.Presentation.csproj" -c Release -o /app/build
+
+# Stage 2: Publish
+FROM build AS publish
+RUN dotnet publish "UserService.Presentation.csproj" -c Release -o /app/publish /p:UseAppHost=false
+
+# Stage 3: Runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
+WORKDIR /app
+
+# Install curl for healthcheck
+RUN apk add --no-cache curl
+
+# Create non-root user
+RUN addgroup -g 1000 appuser && adduser -D -u 1000 -G appuser appuser
+USER appuser
+
+# Copy published application
+COPY --from=publish --chown=appuser:appuser /app/publish .
+
+# Expose port
+EXPOSE 8080
+
+# Set entry point
+ENTRYPOINT ["dotnet", "UserService.Presentation.dll"]
