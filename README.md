@@ -6,7 +6,8 @@ A production-ready, event-driven microservices platform demonstrating real-time 
 
 This project showcases modern cloud-native architecture with:
 
-- **Domain-Driven Design (DDD)** with Onion Architecture
+- **Domain-Driven Design (DDD)** with **Clean Architecture**
+- **SOLID Principles** applied throughout all layers
 - **Event-Driven Architecture** using Apache Kafka (KRaft mode)
 - **CQRS Pattern** with MediatR
 - **Microservices** deployed on Azure Container Apps
@@ -56,7 +57,7 @@ docker-compose up -d
 3. **Run User Service:**
 
 ```bash
-cd src/services/UserService/UserService.Api
+cd src/services/UserService/UserService.Presentation
 dotnet run
 ```
 
@@ -128,11 +129,11 @@ KafkaWithDotNet/
 │   ├── frontend/
 │   │   └── order-app/          # React application
 │   ├── services/
-│   │   └── UserService/        # User management service
-│   │       ├── Domain/         # Core business logic
-│   │       ├── Application/    # Use cases (CQRS)
-│   │       ├── Infrastructure/ # Data access
-│   │       └── Api/            # REST API
+│   │   └── UserService/        # Clean Architecture with SOLID
+│   │       ├── Domain/         # Enterprise Business Rules (no dependencies)
+│   │       ├── Application/    # Application Business Rules (CQRS)
+│   │       ├── Infrastructure/ # Interface Adapters (data access)
+│   │       └── Presentation/   # Frameworks & Drivers (REST API)
 │   └── shared/                 # Shared libraries
 └── tests/                      # Tests
 ```

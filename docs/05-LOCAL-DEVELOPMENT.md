@@ -88,14 +88,14 @@ docker-compose ps
 ### 4. Run Database Migrations
 
 ```bash
-cd src/services/UserService/UserService.Api
+cd src/services/UserService/UserService.Presentation
 dotnet ef database update
 ```
 
 ### 5. Run User Service
 
 ```bash
-cd src/services/UserService/UserService.Api
+cd src/services/UserService/UserService.Presentation
 dotnet run
 ```
 
@@ -213,7 +213,7 @@ services:
   user-service:
     build:
       context: ../../src/services/UserService
-      dockerfile: UserService.Api/Dockerfile
+      dockerfile: UserService.Presentation/Dockerfile
     container_name: user-service
     environment:
       ASPNETCORE_ENVIRONMENT: Development
@@ -258,7 +258,7 @@ volumes:
 
    ```bash
    # Terminal 1: User Service
-   cd src/services/UserService/UserService.Api
+   cd src/services/UserService/UserService.Presentation
    dotnet watch run
 
    # Terminal 2: Frontend
@@ -278,7 +278,7 @@ volumes:
 **Run migrations:**
 
 ```bash
-cd src/services/UserService/UserService.Api
+cd src/services/UserService/UserService.Presentation
 dotnet ef migrations add MigrationName
 dotnet ef database update
 ```
@@ -497,13 +497,13 @@ dotnet dev-certs https --trust
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "User Service",
+      "name": "User Service (Presentation)",
       "type": "coreclr",
       "request": "launch",
       "preLaunchTask": "build",
-      "program": "${workspaceFolder}/src/services/UserService/UserService.Api/bin/Debug/net8.0/UserService.Api.dll",
+      "program": "${workspaceFolder}/src/services/UserService/UserService.Presentation/bin/Debug/net8.0/UserService.Presentation.dll",
       "args": [],
-      "cwd": "${workspaceFolder}/src/services/UserService/UserService.Api",
+      "cwd": "${workspaceFolder}/src/services/UserService/UserService.Presentation",
       "env": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       },

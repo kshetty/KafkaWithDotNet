@@ -31,13 +31,14 @@ The complete project documentation has been created and is ready for review. All
    - Deployment commands and procedures
    - Security best practices
 
-4. **[03-USER-SERVICE.md](03-USER-SERVICE.md)** (5,500+ words)
+4. **[03-USER-SERVICE.md](03-USER-SERVICE.md)** (8,000+ words)
 
-   - DDD/Onion Architecture implementation details
-   - Complete code examples for all layers (Domain, Application, Infrastructure, API)
+   - DDD/Clean Architecture implementation details with SOLID principles
+   - Complete code examples for all 4 layers (Domain, Application, Infrastructure, Presentation)
+   - SOLID principle examples with good vs bad code patterns
    - CQRS command and query handlers
-   - Repository patterns and implementations
-   - JWT token service and Redis session management
+   - Repository patterns with Interface Segregation
+   - JWT token service and Redis session management with Dependency Inversion
    - API endpoints documentation
 
 5. **[04-FRONTEND.md](04-FRONTEND.md)** (3,500+ words)
@@ -95,10 +96,10 @@ With documentation complete, here's the implementation plan:
 
 #### Tasks:
 
-5. ✅ **Domain Layer** - Entities, value objects, domain events, interfaces
-6. ✅ **Application Layer** - CQRS commands/queries with MediatR and FluentValidation
-7. ✅ **Infrastructure Layer** - EF Core, repositories, token service, session service
-8. ✅ **API Layer** - Controllers, middleware, health checks, Swagger
+5. ✅ **Domain Layer** - Entities, value objects, domain events (SRP, OCP, zero dependencies)
+6. ✅ **Application Layer** - CQRS commands/queries with MediatR (SRP, ISP, DIP)
+7. ✅ **Infrastructure Layer** - EF Core, repositories, services implementing interfaces (DIP, LSP)
+8. ✅ **Presentation Layer** - Controllers, middleware, health checks, Swagger (dependency on Application only)
 
 **Deliverables:**
 
@@ -164,12 +165,13 @@ With documentation complete, here's the implementation plan:
 
 ### **1. Architecture Decisions**
 
-| Decision                 | Rationale                                            |
-| ------------------------ | ---------------------------------------------------- |
-| **Onion Architecture**   | Clear separation of concerns, testable, maintainable |
-| **CQRS with MediatR**    | Separate read/write models, scalable                 |
-| **Event-Driven (Kafka)** | Loose coupling, eventual consistency, audit trail    |
-| **KRaft Mode**           | Modern Kafka without ZooKeeper dependency            |
+| Decision                 | Rationale                                                     |
+| ------------------------ | ------------------------------------------------------------- |
+| **Clean Architecture**   | Dependency inversion, clear layer boundaries, highly testable |
+| **SOLID Principles**     | Maintainable, extensible, loosely coupled design              |
+| **CQRS with MediatR**    | Separate read/write models, scalable                          |
+| **Event-Driven (Kafka)** | Loose coupling, eventual consistency, audit trail             |
+| **KRaft Mode**           | Modern Kafka without ZooKeeper dependency                     |
 
 ### **2. Authentication Strategy**
 
@@ -223,7 +225,7 @@ With documentation complete, here's the implementation plan:
 3. **Begin Implementation**
    - Start with project structure
    - Set up local development environment
-   - Build User Service layer by layer
+   - Build User Service layer by layer following Clean Architecture with SOLID principles
 
 ---
 
@@ -231,7 +233,7 @@ With documentation complete, here's the implementation plan:
 
 **You now have:**
 
-- ✅ Complete architectural design
+- ✅ Complete architectural design (Clean Architecture with SOLID)
 - ✅ Detailed implementation documentation
 - ✅ Clear technology stack
 - ✅ Multi-environment strategy
@@ -242,7 +244,7 @@ With documentation complete, here's the implementation plan:
 **To begin implementation, please confirm:**
 
 1. ✅ **Documentation Review Complete** - All docs reviewed and approved
-2. ✅ **Architecture Approved** - DDD, CQRS, Kafka approach confirmed
+2. ✅ **Architecture Approved** - DDD/Clean Architecture with SOLID, CQRS, Kafka approach confirmed
 3. ✅ **Technology Stack Approved** - .NET 8, React, Kafka KRaft, Azure services
 4. ✅ **Authentication Strategy Approved** - Entra External ID with hybrid token/session
 5. ✅ **Infrastructure Approach Approved** - Terraform multi-env with consumption-based resources

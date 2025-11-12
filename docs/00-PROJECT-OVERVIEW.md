@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-This project demonstrates a real-time, event-driven microservices architecture using Apache Kafka with .NET 8, implementing an Order Processing System. The architecture follows Domain-Driven Design (DDD) principles with Onion Architecture, deployed on Azure using Infrastructure as Code (Terraform).
+This project demonstrates a real-time, event-driven microservices architecture using Apache Kafka with .NET 8, implementing an Order Processing System. The architecture follows Domain-Driven Design (DDD) principles with Clean Architecture and SOLID design principles, deployed on Azure using Infrastructure as Code (Terraform).
 
 ## 🎯 Business Scenario
 
@@ -23,28 +23,65 @@ This project demonstrates a real-time, event-driven microservices architecture u
 - Domain events for inter-service communication
 - Ubiquitous language across the codebase
 
-### **2. Onion Architecture (Clean Architecture)**
+### **2. Clean Architecture**
 
-- **Domain Layer**: Core business logic, entities, value objects (no dependencies)
-- **Application Layer**: Use cases, CQRS commands/queries, business workflows
-- **Infrastructure Layer**: Data access, external services, caching, messaging
-- **API Layer**: Controllers, middleware, DTOs, presentation concerns
+Clean Architecture enforces separation of concerns with dependency rules flowing inward:
 
-### **3. Event-Driven Architecture**
+- **Domain (Enterprise Business Rules)**: Core business logic, entities, value objects, domain events (ZERO dependencies)
+- **Application (Application Business Rules)**: Use cases, CQRS commands/queries, interfaces, DTOs (depends only on Domain)
+- **Infrastructure (Interface Adapters)**: Data access, external services, caching, messaging (depends on Application)
+- **Presentation (Frameworks & Drivers)**: API controllers, middleware, web concerns (depends on Application)
 
-- Apache Kafka for event streaming (KRaft mode - no ZooKeeper)
+**Key Principle**: Dependencies point inward. Inner layers know nothing about outer layers.
+
+### **3. SOLID Principles**
+
+Every layer explicitly follows SOLID design:
+
+- **Single Responsibility Principle (SRP)**: Each class has one reason to change
+
+  - Commands, Queries, Handlers are separate
+  - Repositories handle only data access
+  - Services have focused responsibilities
+
+- **Open/Closed Principle (OCP)**: Open for extension, closed for modification
+
+  - Use interfaces and abstractions
+  - Strategy pattern for algorithms (e.g., PasswordHasher)
+  - Decorator pattern for cross-cutting concerns
+
+- **Liskov Substitution Principle (LSP)**: Subtypes must be substitutable
+
+  - Interface implementations are interchangeable
+  - Mock implementations for testing
+  - Polymorphic behavior without breaking contracts
+
+- **Interface Segregation Principle (ISP)**: Clients shouldn't depend on unused methods
+
+  - Focused, role-based interfaces
+  - `IUserRepository` separate from `IUserReadRepository`
+  - Granular service interfaces
+
+- **Dependency Inversion Principle (DIP)**: Depend on abstractions, not concretions
+  - All dependencies injected via interfaces
+  - Infrastructure implements interfaces defined in Application/Domain
+  - IoC container manages lifetimes
+
+### **4. Event-Driven Architecture**
+
+- Apache Kafka for event streaming (KRaft mode - over ZooKeeper)
 - Domain events published to Kafka topics
 - Eventual consistency across services
 - Event sourcing for complete audit trails
 
-### **4. CQRS Pattern**
+### **5. CQRS Pattern**
 
 - Separate commands (write) and queries (read)
 - Optimized read and write models
 - MediatR for command/query handling
 - Clear separation of concerns
 
-### **5. Microservices Architecture**
+### **6. Microservices Architecture**
 
 - Independent deployable services
 - Each service owns its data
@@ -395,12 +432,40 @@ KafkaWithDotNet/
 │   │       └── Dockerfile
 │   │
 │   ├── services/
-│   │   ├── UserService/                # Phase 1
-│   │   │   ├── UserService.Domain/
-│   │   │   ├── UserService.Application/
-│   │   │   ├── UserService.Infrastructure/
-│   │   │   ├── UserService.Api/
+│   │   ├── UserService/                # Phase 1 - Clean Architecture
+│   │   │   ├── UserService.Domain/           # Enterprise Business Rules
+│   │   │   │   ├── Entities/
+│   │   │   │   ├── ValueObjects/
+│   │   │   │   ├── Events/
+│   │   │   │   ├── Exceptions/
+│   │   │   │   └── Common/
+│   │   │   │
+│   │   │   ├── UserService.Application/      # Application Business Rules
+│   │   │   │   ├── Commands/
+│   │   │   │   ├── Queries/
+│   │   │   │   ├── DTOs/
+│   │   │   │   ├── Interfaces/
+│   │   │   │   ├── Validators/
+│   │   │   │   └── Behaviors/
+│   │   │   │
+│   │   │   ├── UserService.Infrastructure/   # Interface Adapters
+│   │   │   │   ├── Persistence/
+│   │   │   │   ├── Repositories/
+│   │   │   │   ├── Services/
+│   │   │   │   ├── Kafka/
+│   │   │   │   └── Configuration/
+│   │   │   │
+│   │   │   ├── UserService.Presentation/     # Frameworks & Drivers
+│   │   │   │   ├── Controllers/
+│   │   │   │   ├── Middleware/
+│   │   │   │   ├── Filters/
+│   │   │   │   ├── Extensions/
+│   │   │   │   └── Program.cs
+│   │   │   │
 │   │   │   └── UserService.Tests/
+│   │   │       ├── Unit/
+│   │   │       ├── Integration/
+│   │   │       └── Architecture/
 │   │   │
 │   │   ├── OrderService/               # Phase 2 (future)
 │   │   ├── OrderProcessor/             # Phase 2 (future)
@@ -440,7 +505,7 @@ KafkaWithDotNet/
 
 1. Clone repository
 2. Run `docker-compose up -d` (Kafka, PostgreSQL, Redis)
-3. Run User Service: `dotnet run --project src/services/UserService/UserService.Api`
+3. Run User Service: `dotnet run --project src/services/UserService/UserService.Presentation`
 4. Run Frontend: `npm run dev` in `src/frontend/order-app`
 5. Access: http://localhost:3000
 

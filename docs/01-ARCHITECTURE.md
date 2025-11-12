@@ -40,7 +40,7 @@ This document provides detailed architecture diagrams and explanations following
 
 ```
 ┌───────────────────────────────────────────────────────────────────────┐
-│                           External User                                │
+│                           External User                               │
 └────────────────────────────────┬──────────────────────────────────────┘
                                  │
                                  │ HTTPS
@@ -87,7 +87,8 @@ This document provides detailed architecture diagrams and explanations following
   │  (Container App)│  │   Service   │  │  Service  │
   │                 │  │ (Phase 2)   │  │ (Phase 2) │
   │  .NET 8 API     │  │             │  │           │
-  │  - DDD/Onion    │  │             │  │           │
+  │  - Clean Arch   │  │             │  │           │
+  │  - SOLID        │  │             │  │           │
   │  - CQRS         │  │             │  │           │
   │  - EF Core      │  │             │  │           │
   │                 │  │             │  │           │
@@ -127,35 +128,35 @@ This document provides detailed architecture diagrams and explanations following
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        User Service                              │
-│                     (Azure Container App)                        │
-│                                                                  │
-│  ┌────────────────────────────────────────────────────────┐    │
-│  │              API Layer (Presentation)                   │    │
-│  │                                                          │    │
-│  │  ┌──────────────────┐  ┌──────────────────┐           │    │
-│  │  │ UsersController  │  │  Middleware      │           │    │
-│  │  │                  │  │                  │           │    │
-│  │  │ - POST /signup   │  │ - Exception      │           │    │
-│  │  │ - POST /signin   │  │ - Auth           │           │    │
-│  │  │ - POST /signout  │  │ - Logging        │           │    │
-│  │  │ - GET /me        │  │                  │           │    │
-│  │  │ - POST /refresh  │  │                  │           │    │
-│  │  └────────┬─────────┘  └──────────────────┘           │    │
-│  │           │                                             │    │
-│  └───────────┼─────────────────────────────────────────────┘    │
+│                        User Service                             │
+│                     (Azure Container App)                       │
+│                                                                 │
+│  ┌─────────────────────────────────────────────────────────┐     │
+│  │              API Layer (Presentation)                   │     │
+│  │                                                         │     │
+│  │  ┌──────────────────┐  ┌──────────────────┐             │     │
+│  │  │ UsersController  │  │  Middleware      │             │     │
+│  │  │                  │  │                  │             │     │
+│  │  │ - POST /signup   │  │ - Exception      │             │     │
+│  │  │ - POST /signin   │  │ - Auth           │             │     │
+│  │  │ - POST /signout  │  │ - Logging        │             │     │
+│  │  │ - GET /me        │  │                  │             │     │
+│  │  │ - POST /refresh  │  │                  │             │     │
+│  │  └────────┬─────────┘  └──────────────────┘             │     │
+│  │           │                                             │     │
+│  └───────────┼─────────────────────────────────────────────┘     │
 │              │ MediatR                                           │
-│  ┌───────────▼─────────────────────────────────────────────┐    │
-│  │         Application Layer (Use Cases - CQRS)            │    │
-│  │                                                          │    │
-│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐ │    │
-│  │  │   Commands   │  │   Queries    │  │  Validators  │ │    │
-│  │  │              │  │              │  │              │ │    │
-│  │  │ SignupUser   │  │ GetUserProfile│ │ FluentValid  │ │    │
-│  │  │ SigninUser   │  │ GetSessions  │  │              │ │    │
-│  │  │ SignoutUser  │  │              │  │              │ │    │
-│  │  │ RefreshToken │  │              │  │              │ │    │
-│  │  └──────┬───────┘  └──────┬───────┘  └──────────────┘ │    │
+│  ┌───────────▼────────────────────────────────────────────┐     │
+│  │         Application Layer (Use Cases - CQRS)           │     │
+│  │                                                        │     │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  │    │
+│  │  │   Commands   │  │   Queries    │  │  Validators  │  │    │
+│  │  │              │  │              │  │              │  │    │
+│  │  │ SignupUser   │  │ GetUserProfile│ │ FluentValid  │  │    │
+│  │  │ SigninUser   │  │ GetSessions  │  │              │  │    │
+│  │  │ SignoutUser  │  │              │  │              │  │    │
+│  │  │ RefreshToken │  │              │  │              │  │    │
+│  │  └──────┬───────┘  └──────┬───────┘  └──────────────┘   │    │
 │  │         │                  │                            │    │
 │  └─────────┼──────────────────┼────────────────────────────┘    │
 │            │                  │                                 │

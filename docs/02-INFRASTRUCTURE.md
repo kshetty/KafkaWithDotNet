@@ -333,7 +333,7 @@ module "apim" {
       path         = "users"
       display_name = "User Management API"
       protocols    = ["https"]
-      openapi_spec = file("${path.module}/../../../src/services/UserService/UserService.Api/swagger.json")
+      openapi_spec = file("${path.module}/../../../src/services/UserService/UserService.Presentation/swagger.json")
     }
   }
 
