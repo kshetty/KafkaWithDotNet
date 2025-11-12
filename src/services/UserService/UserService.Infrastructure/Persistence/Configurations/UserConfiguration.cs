@@ -93,7 +93,7 @@ public sealed class UserConfiguration : IEntityTypeConfiguration<User>
 
     // Relationships
     builder.HasMany(u => u.Sessions)
-        .WithOne()
+        .WithOne(s => s.User)
         .HasForeignKey(s => s.UserId)
         .OnDelete(DeleteBehavior.Cascade);
 

@@ -22,7 +22,7 @@ public sealed class UserSessionConfiguration : IEntityTypeConfiguration<UserSess
         .HasColumnName("id")
         .ValueGeneratedNever(); // Guid generated in domain
 
-    // Foreign key
+    // Foreign key (relationship defined in UserConfiguration)
     builder.Property(s => s.UserId)
         .HasColumnName("user_id")
         .IsRequired();
@@ -66,6 +66,10 @@ public sealed class UserSessionConfiguration : IEntityTypeConfiguration<UserSess
 
     builder.Property(s => s.LastUsedAt)
         .HasColumnName("last_used_at")
+        .IsRequired(false);
+
+    builder.Property(s => s.UpdatedAt)
+        .HasColumnName("updated_at")
         .IsRequired(false);
 
     // Indexes for common queries
