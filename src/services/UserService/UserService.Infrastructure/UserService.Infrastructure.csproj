@@ -26,6 +26,8 @@
     <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="3.0.9" />
     <PackageReference Include="StackExchange.Redis" Version="2.7.10" />
     <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.1.2" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="8.0.0" />
   </ItemGroup>
 
 </Project>
