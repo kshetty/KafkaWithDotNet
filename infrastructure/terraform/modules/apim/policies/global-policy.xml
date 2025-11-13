@@ -1,0 +1,126 @@
+<policies>
+    <inbound>
+        <!-- CORS policy for SPA applications -->
+        <cors allow-credentials="true">
+            <allowed-origins>
+                ${allowed_origins}
+            </allowed-origins>
+            <allowed-methods>
+                <method>GET</method>
+                <method>POST</method>
+                <method>PUT</method>
+                <method>DELETE</method>
+                <method>PATCH</method>
+                <method>OPTIONS</method>
+            </allowed-methods>
+            <allowed-headers>
+                <header>*</header>
+            </allowed-headers>
+            <expose-headers>
+                <header>*</header>
+            </expose-headers>
+        </cors>
+        
+        <!-- Remove server information headers for security -->
+        <set-header name="X-Powered-By" exists-action="delete" />
+        <set-header name="X-AspNet-Version" exists-action="delete" />
+        <set-header name="Server" exists-action="delete" />
+        
+        <!-- Generate and add request ID for distributed tracing -->
+        <set-variable name="requestId" value="@(Guid.NewGuid().ToString())" />
+        <set-header name="X-Request-ID" exists-action="override">
+            <value>@((string)context.Variables["requestId"])</value>
+        </set-header>
+        
+        <!-- Add timestamp for request tracking -->
+        <set-variable name="requestTimestamp" value="@(DateTime.UtcNow)" />
+    </inbound>
+    
+    <backend>
+        <forward-request />
+    </backend>
+    
+    <outbound>
+        <!-- Security headers -->
+        <set-header name="X-Content-Type-Options" exists-action="override">
+            <value>nosniff</value>
+        </set-header>
+        <set-header name="X-Frame-Options" exists-action="override">
+            <value>DENY</value>
+        </set-header>
+        <set-header name="X-XSS-Protection" exists-action="override">
+            <value>1; mode=block</value>
+        </set-header>
+        <set-header name="Strict-Transport-Security" exists-action="override">
+            <value>max-age=31536000; includeSubDomains</value>
+        </set-header>
+        <set-header name="Content-Security-Policy" exists-action="override">
+            <value>default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';</value>
+        </set-header>
+        <set-header name="Referrer-Policy" exists-action="override">
+            <value>strict-origin-when-cross-origin</value>
+        </set-header>
+        <set-header name="Permissions-Policy" exists-action="override">
+            <value>geolocation=(), microphone=(), camera=()</value>
+        </set-header>
+        
+        <!-- Add request ID to response for correlation -->
+        <set-header name="X-Request-ID" exists-action="override">
+            <value>@((string)context.Variables["requestId"])</value>
+        </set-header>
+        
+        <!-- Add response time header -->
+        <set-header name="X-Response-Time" exists-action="override">
+            <value>@{
+                var timestamp = (DateTime)context.Variables["requestTimestamp"];
+                var elapsed = DateTime.UtcNow - timestamp;
+                return elapsed.TotalMilliseconds.ToString() + "ms";
+            }</value>
+        </set-header>
+        
+        <!-- Remove internal headers that shouldn't be exposed -->
+        <set-header name="X-AspNetCore-Environment" exists-action="delete" />
+        <set-header name="X-SourceFiles" exists-action="delete" />
+    </outbound>
+    
+    <on-error>
+        <!-- Log errors with context -->
+        <trace source="global-policy-error" severity="error">
+            <message>@{
+                return new JObject(
+                    new JProperty("message", context.LastError.Message),
+                    new JProperty("source", context.LastError.Source),
+                    new JProperty("reason", context.LastError.Reason),
+                    new JProperty("scope", context.LastError.Scope),
+                    new JProperty("section", context.LastError.Section),
+                    new JProperty("path", context.LastError.Path),
+                    new JProperty("requestId", context.Variables["requestId"])
+                ).ToString();
+            }</message>
+        </trace>
+        
+        <!-- Return structured error response -->
+        <return-response>
+            <set-status code="@(context.Response.StatusCode)" reason="@(context.Response.StatusReason)" />
+            <set-header name="Content-Type" exists-action="override">
+                <value>application/json</value>
+            </set-header>
+            <set-header name="X-Request-ID" exists-action="override">
+                <value>@((string)context.Variables["requestId"])</value>
+            </set-header>
+            <set-body>@{
+                var statusCode = context.Response.StatusCode;
+                var errorMessage = context.LastError?.Message ?? "An error occurred";
+                
+                return new JObject(
+                    new JProperty("error", new JObject(
+                        new JProperty("code", statusCode),
+                        new JProperty("message", errorMessage),
+                        new JProperty("requestId", context.Variables["requestId"]),
+                        new JProperty("timestamp", DateTime.UtcNow.ToString("o"))
+                    ))
+                ).ToString();
+            }</set-body>
+        </return-response>
+    </on-error>
+</policies>

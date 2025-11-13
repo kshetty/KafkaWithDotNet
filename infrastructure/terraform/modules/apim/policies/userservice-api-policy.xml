@@ -1,0 +1,203 @@
+<policies>
+    <inbound>
+        <base />
+        
+        <!-- Validate Azure AD B2C JWT token -->
+        <validate-jwt header-name="Authorization" failed-validation-httpcode="401" failed-validation-error-message="Unauthorized. Valid JWT token is required." require-expiration-time="true" require-signed-tokens="true">
+            <openid-config url="https://${b2c_domain}/${b2c_tenant_id}/v2.0/.well-known/openid-configuration?p=${b2c_policy_name}" />
+            <audiences>
+                <audience>${b2c_client_id}</audience>
+            </audiences>
+            <issuers>
+                <issuer>https://${b2c_domain}/${b2c_tenant_id}/v2.0/</issuer>
+            </issuers>
+            <required-claims>
+                <claim name="oid" match="any">
+                    <value>.*</value>
+                </claim>
+            </required-claims>
+        </validate-jwt>
+        
+        <!-- Extract user information from JWT token -->
+        <set-variable name="userId" value="@{
+            var jwt = context.Request.Headers.GetValueOrDefault("Authorization", "").Replace("Bearer ", "");
+            if (string.IsNullOrEmpty(jwt)) return null;
+            
+            try {
+                var base64 = jwt.Split('.')[1];
+                var padded = base64.PadRight(base64.Length + (4 - base64.Length % 4) % 4, '=');
+                var bytes = Convert.FromBase64String(padded);
+                var json = System.Text.Encoding.UTF8.GetString(bytes);
+                var token = Newtonsoft.Json.Linq.JObject.Parse(json);
+                
+                return token["oid"]?.ToString();
+            } catch {
+                return null;
+            }
+        }" />
+        
+        <set-variable name="userEmail" value="@{
+            var jwt = context.Request.Headers.GetValueOrDefault("Authorization", "").Replace("Bearer ", "");
+            if (string.IsNullOrEmpty(jwt)) return null;
+            
+            try {
+                var base64 = jwt.Split('.')[1];
+                var padded = base64.PadRight(base64.Length + (4 - base64.Length % 4) % 4, '=');
+                var bytes = Convert.FromBase64String(padded);
+                var json = System.Text.Encoding.UTF8.GetString(bytes);
+                var token = Newtonsoft.Json.Linq.JObject.Parse(json);
+                
+                // B2C can return email in different claims
+                var emails = token["emails"]?.ToString();
+                if (!string.IsNullOrEmpty(emails)) return emails.Trim('[', ']', '"');
+                
+                return token["email"]?.ToString();
+            } catch {
+                return null;
+            }
+        }" />
+        
+        <!-- Forward user context to backend API -->
+        <set-header name="X-User-ID" exists-action="override">
+            <value>@((string)context.Variables["userId"])</value>
+        </set-header>
+        <set-header name="X-User-Email" exists-action="override">
+            <value>@((string)context.Variables["userEmail"])</value>
+        </set-header>
+        
+        <!-- Validate subscription key -->
+        <check-header name="Ocp-Apim-Subscription-Key" failed-check-httpcode="401" failed-check-error-message="Subscription key is required" ignore-case="false" />
+        
+        <!-- Rate limiting per user (100 calls per minute) -->
+        <rate-limit-by-key calls="100" 
+                          renewal-period="60" 
+                          counter-key="@(context.Request.Headers.GetValueOrDefault("X-User-ID", "anonymous"))" 
+                          increment-condition="@(context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)" />
+        
+        <!-- Quota per subscription (10,000 calls per day) -->
+        <quota-by-key calls="10000" 
+                     renewal-period="86400" 
+                     counter-key="@(context.Subscription?.Key ?? "anonymous")" 
+                     increment-condition="@(context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)" />
+        
+        <!-- Cache lookup for GET requests only -->
+        <choose>
+            <when condition="@(context.Request.Method == "GET")">
+                <cache-lookup vary-by-developer="false" vary-by-developer-groups="false" downstream-caching-type="none">
+                    <vary-by-header>Accept</vary-by-header>
+                    <vary-by-header>Accept-Charset</vary-by-header>
+                    <vary-by-header>Accept-Encoding</vary-by-header>
+                    <vary-by-header>Authorization</vary-by-header>
+                    <vary-by-query-parameter>*</vary-by-query-parameter>
+                </cache-lookup>
+            </when>
+        </choose>
+        
+        <!-- Set backend service URL -->
+        <set-backend-service base-url="${backend_url}" />
+        
+        <!-- Add API version header -->
+        <set-header name="X-API-Version" exists-action="override">
+            <value>v1</value>
+        </set-header>
+    </inbound>
+    
+    <backend>
+        <!-- Forward request to backend with timeout -->
+        <forward-request timeout="${backend_request_timeout}" />
+    </backend>
+    
+    <outbound>
+        <base />
+        
+        <!-- Cache store for successful GET requests -->
+        <choose>
+            <when condition="@(context.Request.Method == "GET" && context.Response.StatusCode == 200)">
+                <cache-store duration="${cache_duration}" />
+            </when>
+        </choose>
+        
+        <!-- Remove internal headers before sending response -->
+        <set-header name="X-User-ID" exists-action="delete" />
+        <set-header name="X-User-Email" exists-action="delete" />
+        
+        <!-- Add cache status header -->
+        <choose>
+            <when condition="@(context.Variables.ContainsKey("IsCachedResponse"))">
+                <set-header name="X-Cache" exists-action="override">
+                    <value>HIT</value>
+                </set-header>
+            </when>
+            <otherwise>
+                <set-header name="X-Cache" exists-action="override">
+                    <value>MISS</value>
+                </set-header>
+            </otherwise>
+        </choose>
+    </outbound>
+    
+    <on-error>
+        <base />
+        
+        <!-- Handle rate limit errors with specific message -->
+        <choose>
+            <when condition="@(context.LastError.Reason == "RateLimitExceeded")">
+                <return-response>
+                    <set-status code="429" reason="Too Many Requests" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-header name="Retry-After" exists-action="override">
+                        <value>60</value>
+                    </set-header>
+                    <set-body>@{
+                        return new JObject(
+                            new JProperty("error", new JObject(
+                                new JProperty("code", 429),
+                                new JProperty("message", "Rate limit exceeded. Please try again in 60 seconds."),
+                                new JProperty("requestId", context.Variables["requestId"]),
+                                new JProperty("retryAfter", "60 seconds")
+                            ))
+                        ).ToString();
+                    }</set-body>
+                </return-response>
+            </when>
+            <when condition="@(context.LastError.Reason == "QuotaExceeded")">
+                <return-response>
+                    <set-status code="429" reason="Quota Exceeded" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-body>@{
+                        return new JObject(
+                            new JProperty("error", new JObject(
+                                new JProperty("code", 429),
+                                new JProperty("message", "Daily quota exceeded. Please upgrade your subscription or try again tomorrow."),
+                                new JProperty("requestId", context.Variables["requestId"])
+                            ))
+                        ).ToString();
+                    }</set-body>
+                </return-response>
+            </when>
+            <otherwise>
+                <!-- Default error handling from global policy -->
+                <return-response>
+                    <set-status code="@(context.Response.StatusCode)" reason="@(context.Response.StatusReason)" />
+                    <set-header name="Content-Type" exists-action="override">
+                        <value>application/json</value>
+                    </set-header>
+                    <set-body>@{
+                        return new JObject(
+                            new JProperty("error", new JObject(
+                                new JProperty("code", context.Response.StatusCode),
+                                new JProperty("message", context.LastError?.Message ?? "An error occurred processing your request"),
+                                new JProperty("requestId", context.Variables["requestId"]),
+                                new JProperty("timestamp", DateTime.UtcNow.ToString("o"))
+                            ))
+                        ).ToString();
+                    }</set-body>
+                </return-response>
+            </otherwise>
+        </choose>
+    </on-error>
+</policies>

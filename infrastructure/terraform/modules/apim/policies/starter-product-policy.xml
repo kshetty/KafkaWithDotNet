@@ -1,0 +1,46 @@
+<policies>
+    <inbound>
+        <base />
+        
+        <!-- Rate limiting: ${rate_limit_calls} calls per minute -->
+        <rate-limit-by-key calls="${rate_limit_calls}" 
+                          renewal-period="60" 
+                          counter-key="@(context.Subscription.Key)" 
+                          increment-condition="@(context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)" />
+        
+        <!-- Daily quota: ${quota_calls} calls per day -->
+        <quota-by-key calls="${quota_calls}" 
+                     renewal-period="86400" 
+                     counter-key="@(context.Subscription.Key)" 
+                     increment-condition="@(context.Response.StatusCode >= 200 && context.Response.StatusCode < 300)" />
+        
+        <!-- Store rate limit info for response headers -->
+        <set-variable name="rateLimitMax" value="${rate_limit_calls}" />
+    </inbound>
+    
+    <backend>
+        <base />
+    </backend>
+    
+    <outbound>
+        <base />
+        
+        <!-- Add rate limit information to response headers -->
+        <set-header name="X-Rate-Limit-Limit" exists-action="override">
+            <value>${rate_limit_calls}</value>
+        </set-header>
+        <set-header name="X-Rate-Limit-Period" exists-action="override">
+            <value>60</value>
+        </set-header>
+        <set-header name="X-Quota-Limit" exists-action="override">
+            <value>${quota_calls}</value>
+        </set-header>
+        <set-header name="X-Quota-Period" exists-action="override">
+            <value>86400</value>
+        </set-header>
+    </outbound>
+    
+    <on-error>
+        <base />
+    </on-error>
+</policies>

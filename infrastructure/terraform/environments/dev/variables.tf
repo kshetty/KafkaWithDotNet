@@ -139,3 +139,21 @@ variable "entra_client_secret" {
   type        = string
   sensitive   = true
 }
+
+# Azure AD B2C Configuration
+variable "b2c_tenant_id" {
+  description = "Azure AD B2C Tenant ID"
+  type        = string
+  sensitive   = true
+}
+
+variable "b2c_domain" {
+  description = "Azure AD B2C domain (e.g., userservice.b2clogin.com)"
+  type        = string
+}
+
+variable "b2c_api_client_id" {
+  description = "Azure AD B2C API Client ID"
+  type        = string
+  sensitive   = true
+}
