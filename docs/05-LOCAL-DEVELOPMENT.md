@@ -59,7 +59,7 @@ REDIS_PASSWORD=YourRedisPassword123!
 # JWT
 JWT_SECRET=your-super-secret-jwt-key-min-32-chars
 JWT_ISSUER=https://localhost:5001
-JWT_AUDIENCE=order-app-api
+JWT_AUDIENCE=userservice-api
 
 # Application Insights (optional for local dev)
 APPINSIGHTS_CONNECTION_STRING=
@@ -106,7 +106,7 @@ Swagger UI: `https://localhost:5001/swagger`
 ### 6. Run React Frontend
 
 ```bash
-cd src/frontend/order-app
+cd src/frontend/react-web-spa
 npm install
 npm run dev
 ```
@@ -120,7 +120,7 @@ Frontend will be available at: `http://localhost:3000`
 ### Full docker-compose.yml
 
 ```yaml
-version: '3.9'
+version: "3.9"
 
 services:
   # Kafka in KRaft mode (No ZooKeeper!)
@@ -130,13 +130,13 @@ services:
     environment:
       # KRaft Configuration
       KAFKA_NODE_ID: 1
-      KAFKA_PROCESS_ROLES: 'broker,controller'
-      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka:9093'
-      KAFKA_LISTENERS: 'PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:29092'
-      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092'
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
-      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
-      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_PROCESS_ROLES: "broker,controller"
+      KAFKA_CONTROLLER_QUORUM_VOTERS: "1@kafka:9093"
+      KAFKA_LISTENERS: "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,PLAINTEXT_HOST://0.0.0.0:29092"
+      KAFKA_ADVERTISED_LISTENERS: "PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES: "CONTROLLER"
+      KAFKA_INTER_BROKER_LISTENER_NAME: "PLAINTEXT"
 
       # Cluster Configuration
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
@@ -145,18 +145,18 @@ services:
       KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
 
       # Storage
-      KAFKA_LOG_DIRS: '/var/lib/kafka/data'
-      CLUSTER_ID: 'MkU3OEVBNTcwNTJENDM2Qk'
+      KAFKA_LOG_DIRS: "/var/lib/kafka/data"
+      CLUSTER_ID: "MkU3OEVBNTcwNTJENDM2Qk"
     ports:
-      - '9092:9092'
-      - '29092:29092'
+      - "9092:9092"
+      - "29092:29092"
     volumes:
       - kafka-data:/var/lib/kafka/data
     healthcheck:
       test:
         [
-          'CMD-SHELL',
-          'kafka-broker-api-versions.sh --bootstrap-server localhost:9092',
+          "CMD-SHELL",
+          "kafka-broker-api-versions.sh --bootstrap-server localhost:9092",
         ]
       interval: 10s
       timeout: 5s
@@ -167,7 +167,7 @@ services:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
     ports:
-      - '8080:8080'
+      - "8080:8080"
     environment:
       KAFKA_CLUSTERS_0_NAME: local
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
@@ -184,12 +184,12 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB:-orderdb}
     ports:
-      - '5432:5432'
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER}']
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -200,11 +200,11 @@ services:
     container_name: redis
     command: redis-server --requirepass ${REDIS_PASSWORD}
     ports:
-      - '6379:6379'
+      - "6379:6379"
     volumes:
       - redis-data:/data
     healthcheck:
-      test: ['CMD', 'redis-cli', '--raw', 'incr', 'ping']
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 10s
       timeout: 3s
       retries: 5
@@ -218,16 +218,16 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Development
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__DefaultConnection: 'Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}'
-      ConnectionStrings__Redis: 'redis:6379,password=${REDIS_PASSWORD}'
-      Kafka__BootstrapServers: 'kafka:9092'
+      ConnectionStrings__DefaultConnection: "Host=postgres;Port=5432;Database=${POSTGRES_DB};Username=${POSTGRES_USER};Password=${POSTGRES_PASSWORD}"
+      ConnectionStrings__Redis: "redis:6379,password=${REDIS_PASSWORD}"
+      Kafka__BootstrapServers: "kafka:9092"
       Jwt__Secret: ${JWT_SECRET}
       Jwt__Issuer: ${JWT_ISSUER}
       Jwt__Audience: ${JWT_AUDIENCE}
       EntraExternalId__Authority: ${ENTRA_AUTHORITY}
       EntraExternalId__ClientId: ${ENTRA_CLIENT_ID}
     ports:
-      - '5001:8080'
+      - "5001:8080"
     depends_on:
       postgres:
         condition: service_healthy
@@ -262,7 +262,7 @@ volumes:
    dotnet watch run
 
    # Terminal 2: Frontend
-   cd src/frontend/order-app
+   cd src/frontend/react-web-spa
    npm run dev
    ```
 

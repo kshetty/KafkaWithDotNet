@@ -67,9 +67,10 @@ KafkaWithDotNet/
 │       ├── UserService.Infrastructure/ # EF Core, Kafka, Redis
 │       └── UserService.API/            # REST API, Swagger, health checks
 │
-├── frontend/
-│   └── userservice-spa/               # React TypeScript SPA
-│       ├── src/
+├── src/
+│   ├── frontend/
+│   │   └── react-web-spa/             # React TypeScript SPA
+│   │       ├── src/
 │       │   ├── auth/                  # MSAL configuration
 │       │   ├── components/            # Reusable components
 │       │   ├── config/                # Environment configuration
@@ -202,14 +203,14 @@ KafkaWithDotNet/
 
 ## Documentation Created
 
-| Document                           | Description                    | Lines |
-| ---------------------------------- | ------------------------------ | ----- |
-| azure-apim-setup.md                | Comprehensive APIM setup guide | 800+  |
-| task-10-apim-summary.md            | Task 10 completion summary     | 500+  |
-| task-11-frontend-summary.md        | Task 11 completion summary     | 600+  |
-| staging-prod-terraform-setup.md    | Multi-environment setup        | 200+  |
-| frontend/userservice-spa/README.md | Frontend project documentation | 500+  |
-| STAGING-PROD-SETUP.md              | Infrastructure setup guide     | 400+  |
+| Document                             | Description                    | Lines |
+| ------------------------------------ | ------------------------------ | ----- |
+| azure-apim-setup.md                  | Comprehensive APIM setup guide | 800+  |
+| task-10-apim-summary.md              | Task 10 completion summary     | 500+  |
+| task-11-frontend-summary.md          | Task 11 completion summary     | 600+  |
+| staging-prod-terraform-setup.md      | Multi-environment setup        | 200+  |
+| src/frontend/react-web-spa/README.md | Frontend project documentation | 500+  |
+| STAGING-PROD-SETUP.md                | Infrastructure setup guide     | 400+  |
 
 **Total Documentation**: ~3,000 lines
 
@@ -321,7 +322,7 @@ dotnet run
 
 ```bash
 # Install dependencies
-cd frontend/userservice-spa
+cd src/frontend/react-web-spa
 npm install
 
 # Configure environment

@@ -99,15 +99,17 @@ Following Clean Architecture with 4 layers:
 
 ### Frontend (`src/frontend/`)
 
-**Order App (`src/frontend/order-app/`)**
+**React Web SPA (`src/frontend/react-web-spa/`)**
+
+A modern React TypeScript single-page application with Azure AD B2C authentication and Material-UI components.
 
 - `src/`
-  - `components/` - React components
-    - `layout/` - Layout components
-    - `auth/` - Authentication components
-  - `pages/` - Page components
-  - `services/` - API service clients
-  - `hooks/` - Custom React hooks
+  - `auth/` - MSAL authentication configuration
+  - `components/` - Reusable React components (ProtectedRoute, NavigationBar, LoadingSpinner, ErrorDisplay)
+  - `config/` - Multi-environment configuration (dev/staging/prod)
+  - `pages/` - Page components (LoginPage, HomePage, UsersPage)
+  - `services/` - API service layer with axios interceptors
+  - `types/` - TypeScript interfaces and DTOs
   - `utils/` - Utility functions
   - `types/` - TypeScript type definitions
   - `config/` - Configuration (MSAL, API endpoints)

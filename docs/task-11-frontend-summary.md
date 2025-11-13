@@ -9,7 +9,7 @@ Successfully implemented a complete React TypeScript SPA for the User Service ap
 ### Project Structure
 
 ```
-frontend/userservice-spa/
+src/frontend/react-web-spa/
 ├── src/
 │   ├── auth/
 │   │   └── authConfig.ts                 # MSAL configuration for B2C
@@ -284,7 +284,7 @@ npm run lint      # Run ESLint
 ### 1. Install Dependencies
 
 ```bash
-cd frontend/userservice-spa
+cd src/frontend/react-web-spa
 npm install
 ```
 

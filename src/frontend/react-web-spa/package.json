@@ -1,5 +1,5 @@
 {
-  "name": "userservice-spa",
+  "name": "react-web-spa",
   "version": "1.0.0",
   "type": "module",
   "description": "React TypeScript SPA for User Service with Azure AD B2C authentication",

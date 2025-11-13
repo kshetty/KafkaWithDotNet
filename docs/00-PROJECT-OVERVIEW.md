@@ -416,20 +416,18 @@ KafkaWithDotNet/
 │
 ├── src/
 │   ├── frontend/
-│   │   └── order-app/                  # React application
+│   │   └── react-web-spa/              # React TypeScript SPA
 │   │       ├── public/
 │   │       ├── src/
-│   │       │   ├── components/
-│   │       │   ├── contexts/
-│   │       │   ├── hooks/
-│   │       │   ├── pages/
-│   │       │   ├── services/
-│   │       │   ├── utils/
-│   │       │   └── config/
+│   │       │   ├── auth/               # MSAL authentication
+│   │       │   ├── components/         # Reusable components
+│   │       │   ├── config/             # Multi-environment config
+│   │       │   ├── pages/              # Page components
+│   │       │   ├── services/           # API services
+│   │       │   └── types/              # TypeScript interfaces
 │   │       ├── package.json
 │   │       ├── tsconfig.json
-│   │       ├── vite.config.ts
-│   │       └── Dockerfile
+│   │       └── vite.config.ts
 │   │
 │   ├── services/
 │   │   ├── UserService/                # Phase 1 - Clean Architecture
@@ -506,7 +504,7 @@ KafkaWithDotNet/
 1. Clone repository
 2. Run `docker-compose up -d` (Kafka, PostgreSQL, Redis)
 3. Run User Service: `dotnet run --project src/services/UserService/UserService.Presentation`
-4. Run Frontend: `npm run dev` in `src/frontend/order-app`
+4. Run Frontend: `npm run dev` in `src/frontend/react-web-spa`
 5. Access: http://localhost:3000
 
 ### Deployment:

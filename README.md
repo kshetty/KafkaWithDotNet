@@ -64,7 +64,7 @@ dotnet run
 4. **Run Frontend:**
 
 ```bash
-cd src/frontend/order-app
+cd src/frontend/react-web-spa
 npm install
 npm run dev
 ```
@@ -127,7 +127,7 @@ KafkaWithDotNet/
 │       └── environments/       # Dev/Staging/Prod configs
 ├── src/
 │   ├── frontend/
-│   │   └── order-app/          # React application
+│   │   └── react-web-spa/      # React TypeScript SPA (Material-UI)
 │   ├── services/
 │   │   └── UserService/        # Clean Architecture with SOLID
 │   │       ├── Domain/         # Enterprise Business Rules (no dependencies)

@@ -65,7 +65,7 @@ src/
 2. **Navigate to the project directory**:
 
    ```bash
-   cd frontend/userservice-spa
+   cd src/frontend/react-web-spa
    ```
 
 3. **Install dependencies**:
@@ -244,7 +244,7 @@ The application communicates with the backend through Azure API Management:
 1. Push code to GitHub
 2. Create Static Web App in Azure Portal
 3. Configure build:
-   - App location: `frontend/userservice-spa`
+   - App location: `src/frontend/react-web-spa`
    - Build command: `npm run build`
    - Output location: `dist`
 4. Add environment variables in portal

@@ -22,7 +22,7 @@ The React frontend is a single-page application (SPA) built with TypeScript, usi
 ## Project Structure
 
 ```
-src/frontend/order-app/
+src/frontend/react-web-spa/
 ├── public/
 │   ├── index.html
 │   └── favicon.ico
@@ -87,7 +87,7 @@ src/frontend/order-app/
 ### MSAL Configuration (`config/msalConfig.ts`)
 
 ```typescript
-import { Configuration, PublicClientApplication } from '@azure/msal-browser';
+import { Configuration, PublicClientApplication } from "@azure/msal-browser";
 
 const msalConfig: Configuration = {
   auth: {
@@ -97,7 +97,7 @@ const msalConfig: Configuration = {
     postLogoutRedirectUri: window.location.origin,
   },
   cache: {
-    cacheLocation: 'sessionStorage',
+    cacheLocation: "sessionStorage",
     storeAuthStateInCookie: false,
   },
 };
@@ -105,7 +105,7 @@ const msalConfig: Configuration = {
 export const msalInstance = new PublicClientApplication(msalConfig);
 
 export const loginRequest = {
-  scopes: ['openid', 'profile', 'email', 'User.Read'],
+  scopes: ["openid", "profile", "email", "User.Read"],
 };
 
 export const tokenRequest = {
@@ -116,11 +116,11 @@ export const tokenRequest = {
 ### AuthContext (`contexts/AuthContext.tsx`)
 
 ```typescript
-import React, { createContext, useContext, useEffect, useState } from 'react';
-import { useMsal } from '@azure/msal-react';
-import { AuthenticationResult } from '@azure/msal-browser';
-import { userService } from '../services/userService';
-import { User, AuthTokens } from '../types/user';
+import React, { createContext, useContext, useEffect, useState } from "react";
+import { useMsal } from "@azure/msal-react";
+import { AuthenticationResult } from "@azure/msal-browser";
+import { userService } from "../services/userService";
+import { User, AuthTokens } from "../types/user";
 
 interface AuthContextType {
   user: User | null;
@@ -157,7 +157,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         }
       }
     } catch (error) {
-      console.error('Auth initialization error:', error);
+      console.error("Auth initialization error:", error);
     } finally {
       setIsLoading(false);
     }
@@ -167,7 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       // First, authenticate with Entra External ID
       const msalResponse = await instance.loginPopup({
-        scopes: ['openid', 'profile', 'email'],
+        scopes: ["openid", "profile", "email"],
         loginHint: email,
       });
 
@@ -185,9 +185,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       });
 
       // Store tokens
-      localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem("refreshToken", response.refreshToken);
     } catch (error) {
-      console.error('Signin error:', error);
+      console.error("Signin error:", error);
       throw error;
     }
   };
@@ -196,7 +196,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
     try {
       // First, authenticate with Entra External ID
       const msalResponse = await instance.loginPopup({
-        scopes: ['openid', 'profile', 'email'],
+        scopes: ["openid", "profile", "email"],
         loginHint: data.email,
       });
 
@@ -213,16 +213,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         refreshToken: response.refreshToken,
       });
 
-      localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem("refreshToken", response.refreshToken);
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error("Signup error:", error);
       throw error;
     }
   };
 
   const signout = async () => {
     try {
-      const refreshToken = localStorage.getItem('refreshToken');
+      const refreshToken = localStorage.getItem("refreshToken");
       if (refreshToken) {
         await userService.signout(refreshToken);
       }
@@ -231,16 +231,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 
       setUser(null);
       setTokens(null);
-      localStorage.removeItem('refreshToken');
+      localStorage.removeItem("refreshToken");
     } catch (error) {
-      console.error('Signout error:', error);
+      console.error("Signout error:", error);
     }
   };
 
   const refreshToken = async () => {
     try {
-      const storedRefreshToken = localStorage.getItem('refreshToken');
-      if (!storedRefreshToken) throw new Error('No refresh token');
+      const storedRefreshToken = localStorage.getItem("refreshToken");
+      if (!storedRefreshToken) throw new Error("No refresh token");
 
       const response = await userService.refreshToken(storedRefreshToken);
 
@@ -249,9 +249,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
         refreshToken: response.refreshToken,
       });
 
-      localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem("refreshToken", response.refreshToken);
     } catch (error) {
-      console.error('Token refresh error:', error);
+      console.error("Token refresh error:", error);
       await signout();
       throw error;
     }
@@ -266,7 +266,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       });
       return response;
     } catch (error) {
-      console.error('Silent token acquisition failed:', error);
+      console.error("Silent token acquisition failed:", error);
       return null;
     }
   };
@@ -276,7 +276,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
       const profile = await userService.getProfile(accessToken);
       setUser(profile);
     } catch (error) {
-      console.error('Failed to load user profile:', error);
+      console.error("Failed to load user profile:", error);
     }
   };
 
@@ -301,7 +301,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
-    throw new Error('useAuth must be used within AuthProvider');
+    throw new Error("useAuth must be used within AuthProvider");
   }
   return context;
 };
@@ -312,14 +312,14 @@ export const useAuth = () => {
 ### API Client (`services/apiClient.ts`)
 
 ```typescript
-import axios, { AxiosInstance, InternalAxiosRequestConfig } from 'axios';
-import { useAuth } from '../contexts/AuthContext';
+import axios, { AxiosInstance, InternalAxiosRequestConfig } from "axios";
+import { useAuth } from "../contexts/AuthContext";
 
 const apiClient: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   timeout: 30000,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
@@ -328,7 +328,7 @@ let refreshTokenPromise: Promise<void> | null = null;
 // Request interceptor - Add access token
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
-    const tokens = JSON.parse(localStorage.getItem('tokens') || '{}');
+    const tokens = JSON.parse(localStorage.getItem("tokens") || "{}");
     if (tokens.accessToken) {
       config.headers.Authorization = `Bearer ${tokens.accessToken}`;
     }
@@ -357,12 +357,12 @@ apiClient.interceptors.response.use(
         refreshTokenPromise = null;
 
         // Retry original request with new token
-        const tokens = JSON.parse(localStorage.getItem('tokens') || '{}');
+        const tokens = JSON.parse(localStorage.getItem("tokens") || "{}");
         originalRequest.headers.Authorization = `Bearer ${tokens.accessToken}`;
         return apiClient(originalRequest);
       } catch (refreshError) {
         // Refresh failed, redirect to login
-        window.location.href = '/signin';
+        window.location.href = "/signin";
         return Promise.reject(refreshError);
       }
     }
@@ -372,9 +372,9 @@ apiClient.interceptors.response.use(
 );
 
 async function refreshAccessToken(): Promise<void> {
-  const refreshToken = localStorage.getItem('refreshToken');
+  const refreshToken = localStorage.getItem("refreshToken");
   if (!refreshToken) {
-    throw new Error('No refresh token available');
+    throw new Error("No refresh token available");
   }
 
   const response = await axios.post(
@@ -384,8 +384,8 @@ async function refreshAccessToken(): Promise<void> {
 
   const { accessToken, refreshToken: newRefreshToken } = response.data;
 
-  localStorage.setItem('tokens', JSON.stringify({ accessToken }));
-  localStorage.setItem('refreshToken', newRefreshToken);
+  localStorage.setItem("tokens", JSON.stringify({ accessToken }));
+  localStorage.setItem("refreshToken", newRefreshToken);
 }
 
 export default apiClient;
@@ -396,10 +396,10 @@ export default apiClient;
 ### ProtectedRoute Component
 
 ```typescript
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import { CircularProgress, Box } from '@mui/material';
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
+import { CircularProgress, Box } from "@mui/material";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -435,25 +435,25 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
 ### SignupForm
 
 ```typescript
-import React from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
-import { Button, TextField, Box, Typography, Alert } from '@mui/material';
-import { useAuth } from '../../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { Button, TextField, Box, Typography, Alert } from "@mui/material";
+import { useAuth } from "../../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const signupSchema = z
   .object({
-    email: z.string().email('Invalid email address'),
-    password: z.string().min(8, 'Password must be at least 8 characters'),
-    firstName: z.string().min(1, 'First name is required'),
-    lastName: z.string().min(1, 'Last name is required'),
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters"),
+    firstName: z.string().min(1, "First name is required"),
+    lastName: z.string().min(1, "Last name is required"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
-    path: ['confirmPassword'],
+    path: ["confirmPassword"],
   });
 
 type SignupFormData = z.infer<typeof signupSchema>;
@@ -475,10 +475,10 @@ export const SignupForm: React.FC = () => {
     try {
       setError(null);
       await signup(data);
-      navigate('/dashboard');
+      navigate("/dashboard");
     } catch (err: any) {
       setError(
-        err.response?.data?.message || 'Signup failed. Please try again.'
+        err.response?.data?.message || "Signup failed. Please try again."
       );
     }
   };
@@ -496,7 +496,7 @@ export const SignupForm: React.FC = () => {
       )}
 
       <TextField
-        {...register('email')}
+        {...register("email")}
         label="Email"
         type="email"
         fullWidth
@@ -506,7 +506,7 @@ export const SignupForm: React.FC = () => {
       />
 
       <TextField
-        {...register('firstName')}
+        {...register("firstName")}
         label="First Name"
         fullWidth
         margin="normal"
@@ -515,7 +515,7 @@ export const SignupForm: React.FC = () => {
       />
 
       <TextField
-        {...register('lastName')}
+        {...register("lastName")}
         label="Last Name"
         fullWidth
         margin="normal"
@@ -524,7 +524,7 @@ export const SignupForm: React.FC = () => {
       />
 
       <TextField
-        {...register('password')}
+        {...register("password")}
         label="Password"
         type="password"
         fullWidth
@@ -534,7 +534,7 @@ export const SignupForm: React.FC = () => {
       />
 
       <TextField
-        {...register('confirmPassword')}
+        {...register("confirmPassword")}
         label="Confirm Password"
         type="password"
         fullWidth
@@ -550,7 +550,7 @@ export const SignupForm: React.FC = () => {
         disabled={isSubmitting}
         sx={{ mt: 3, mb: 2 }}
       >
-        {isSubmitting ? 'Creating Account...' : 'Sign Up'}
+        {isSubmitting ? "Creating Account..." : "Sign Up"}
       </Button>
     </Box>
   );
