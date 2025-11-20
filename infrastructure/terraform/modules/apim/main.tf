@@ -194,7 +194,7 @@ resource "azurerm_monitor_diagnostic_setting" "apim" {
     category = "WebSocketConnectionLogs"
   }
 
-  metric {
+  enabled_log {
     category = "AllMetrics"
   }
 }
